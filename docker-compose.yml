@@ -1,0 +1,26 @@
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: railguard-api
+    ports:
+      - "8000:8000"
+
+    environment:
+      - MLFLOW_TRACKING_URI=sqlite:///mlflow.db
+    restart: unless-stopped
+
+  ui:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    container_name: railguard-ui
+    ports:
+      - "8501:8501"
+    environment:
+      - API_URL=http://api:8000
+    depends_on:
+      - api
+    restart: unless-stopped

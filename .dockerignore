@@ -1,0 +1,32 @@
+# Datasets
+dataset_clean/
+dataset_detection/
+dataset/
+
+# DVC and Cache
+.dvc/cache/
+*.dvc
+.dvc/
+
+# Python Cache and Environments
+__pycache__/
+*.pyc
+.venv/
+env/
+venv/
+.pytest_cache/
+
+# Git
+.git/
+.gitignore
+
+# Outputs and Logs
+api_outputs/
+tests/data/
+runs/
+*.log
+
+# Docker
+docker-compose.yml
+.dockerignore
+Dockerfile*

@@ -1,0 +1,27 @@
+{
+    "original_image_count": 5708,
+    "original_annotation_count": 16333,
+    "valid_polygon_count": 13082,
+    "converted_bbox_count": 16333,
+    "excluded_annotation_count": 0,
+    "annotations_per_class_before": {
+        "bolts": 5629,
+        "crack": 1006,
+        "flaking": 6017,
+        "joints": 132,
+        "sheling": 1317,
+        "spalling": 2232
+    },
+    "annotations_per_class_after": {
+        "bolts": 5629,
+        "crack": 1006,
+        "flaking": 6017,
+        "joints": 132,
+        "sheling": 1317,
+        "spalling": 2232
+    },
+    "train_count": 5330,
+    "valid_count": 201,
+    "test_count": 177,
+    "images_affected_by_excluded": 0
+}

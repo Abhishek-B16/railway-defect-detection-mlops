@@ -1,0 +1,7 @@
+model_registry:
+  tracking_uri: "sqlite:///mlflow.db"
+  name: "RailGuard-Detector"
+  alias: "candidate"
+inference:
+  confidence_threshold: 0.25
+  output_dir: "api_outputs"

@@ -1,2 +1,48 @@
-/dataset_detection
+# Datasets
+dataset_clean/
+dataset_detection/
+dataset/
+data/
+railway defect dataset.v9i.yolov8/
+
+# DVC cache
+.dvc/cache/
+
+# ML training outputs
+runs/
+wandb/
+
+# MLflow local artifacts
+mlruns/
+mlflow.db
+
+# Model weights
+*.pt
+*.pth
+*.onnx
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Environment/secrets
+.env
+.env.*
+!.env.example
+
+# Runtime outputs
+api_outputs/
+
+# IDE/system files
+.vscode/
+.idea/
+.DS_Store
 /dataset_clean
+
+# Generated Inspection Artifacts
+invalid_lines.txt
+dataset_inspection_results.json
+segmentation_inspection_results.json

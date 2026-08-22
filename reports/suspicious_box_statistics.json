@@ -1,0 +1,45 @@
+{
+    "total_boxes": 16333,
+    "suspicious_boxes": 3532,
+    "suspicious_percentage": 21.624931121043286,
+    "suspicious_per_class": {
+        "bolts": 0,
+        "crack": 205,
+        "flaking": 2838,
+        "joints": 0,
+        "sheling": 63,
+        "spalling": 426
+    },
+    "suspicious_per_split": {
+        "train": 3230,
+        "valid": 154,
+        "test": 148
+    },
+    "width_distribution": {
+        "0-0.2": 16333,
+        "0.2-0.4": 0,
+        "0.4-0.6": 0,
+        "0.6-0.8": 0,
+        "0.8-0.98": 0,
+        ">0.98": 0
+    },
+    "height_distribution": {
+        "0-0.2": 7934,
+        "0.2-0.4": 2102,
+        "0.4-0.6": 1217,
+        "0.6-0.8": 906,
+        "0.8-0.98": 642,
+        ">0.98": 3532
+    },
+    "area_distribution": {
+        "0-0.1": 13514,
+        "0.1-0.3": 2819,
+        "0.3-0.6": 0,
+        "0.6-0.9": 0,
+        ">0.9": 0
+    },
+    "suspicious_from_polygons": 2953,
+    "suspicious_from_original_bboxes": 579,
+    "total_from_polygons": 13082,
+    "total_from_original_bboxes": 3251
+}
