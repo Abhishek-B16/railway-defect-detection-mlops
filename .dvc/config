@@ -1,0 +1,4 @@
+[core]
+    remote = origin
+['remote "origin"']
+    url = https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops.dvc
