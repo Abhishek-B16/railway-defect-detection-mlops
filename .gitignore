@@ -6,6 +6,8 @@ data/
 railway defect dataset.v9i.yolov8/
 
 # DVC cache
+.dvc/config.local
+.dvc/config.local*
 .dvc/cache/
 
 # ML training outputs

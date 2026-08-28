@@ -3,16 +3,27 @@ import time
 import uuid
 import yaml
 from fastapi import FastAPI, File, UploadFile, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from PIL import Image
 import io
 import cv2
 import numpy as np
+import torch
 
 from api.schemas import HealthResponse, ModelInfoResponse, PredictionResponse, Detection, BBox
 from api.model_loader import RailGuardModelLoader
 
 app = FastAPI(title="RailGuard Object Detection API")
+
+# Add CORS Middleware for Render cross-origin communication
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Load Configuration
 with open("configs/serve.yaml", "r") as f:
@@ -52,8 +63,6 @@ async def predict(file: UploadFile = File(...)):
 
     # 1. Image Validation
     if not file.content_type or not file.content_type.startswith("image/"):
-        # We can also fallback to checking extension or just proceed and let PIL fail gracefully,
-        # but for safety we will just let it proceed if content_type is None, or throw if it's explicitly not image.
         if file.content_type is not None:
             raise HTTPException(status_code=400, detail="File provided is not an image.")
 
@@ -64,12 +73,12 @@ async def predict(file: UploadFile = File(...)):
             
         image = Image.open(io.BytesIO(contents)).convert("RGB")
         image_np = np.array(image)
-        # Convert RGB to BGR for OpenCV processing if needed, but ultralytics handles RGB well
     except Exception as e:
         raise HTTPException(status_code=400, detail="Corrupted image file.")
 
-    # 2. Inference
-    results = model(image_np, conf=CONFIDENCE_THRESHOLD)
+    # 2. Inference (CPU fallback safety for cloud deployment)
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+    results = model(image_np, conf=CONFIDENCE_THRESHOLD, device=device)
     
     detections = []
     
@@ -98,10 +107,16 @@ async def predict(file: UploadFile = File(...)):
                 )
             )
 
-    # 3. MLOps Logging (printing to console serves as basic structured logging)
+    # 3. MLOps Logging
     latency = time.time() - start_time
     info = loader.get_model_info()
     
     print(f"[INFERENCE LOG] model: {info['model_name']} | version: {info['version']} | alias: {info['alias']} | latency: {latency:.4f}s | detections: {len(detections)}")
 
     return PredictionResponse(detections=detections)
+
+if __name__ == "__main__":
+    import uvicorn
+    host = "0.0.0.0"
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("api.main:app", host=host, port=port, reload=False)

@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: railguard-api
+    env: docker
+    dockerfilePath: Dockerfile.api
+    healthCheckPath: /health
+    envVars:
+      - key: MLFLOW_TRACKING_URI
+        value: sqlite:///mlflow.db
+
+  - type: web
+    name: railguard-ui
+    env: docker
+    dockerfilePath: Dockerfile.ui
+    envVars:
+      - key: API_URL
+        fromService:
+          type: web
+          name: railguard-api
+          property: url

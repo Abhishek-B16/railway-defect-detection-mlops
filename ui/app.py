@@ -4,17 +4,21 @@ import io
 import os
 from PIL import Image, ImageDraw, ImageFont
 
+# Configuration & Environment Variables
 API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
+DAGSHUB_URL = os.getenv("DAGSHUB_URL", "https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops")
+MLFLOW_UI_URL = os.getenv("MLFLOW_UI_URL", os.getenv("MLFLOW_URL", "http://127.0.0.1:5000"))
+API_DOCS_URL = os.getenv("API_DOCS_URL", f"{API_URL.rstrip('/')}/docs")
 
 st.set_page_config(
     page_title="RailGuard",
-    page_icon="🚆",
+    page_icon="🚂",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
 # --- Sidebar: System Status & Model Info ---
-st.sidebar.title("🚆 RailGuard")
+st.sidebar.title("🚂 RailGuard")
 st.sidebar.markdown("---")
 
 st.sidebar.subheader("System Status")
@@ -44,8 +48,15 @@ if "🟢 API Online" in health_status:
             st.sidebar.text(f"Version: {model_info.get('version')}")
             st.sidebar.text(f"Alias: {model_info.get('alias')}")
             st.sidebar.text(f"Task: {model_info.get('task')}")
+            st.sidebar.markdown("---")
     except requests.exceptions.RequestException:
         st.sidebar.error("Could not fetch model info.")
+
+# --- MLOps Navigation Showcase ---
+st.sidebar.subheader("MLOps Navigation")
+st.sidebar.markdown(f"[📖 API Interactive Docs]({API_DOCS_URL})")
+st.sidebar.markdown(f"[📦 DagsHub Dataset & Remote]({DAGSHUB_URL})")
+st.sidebar.markdown(f"[📊 MLflow Tracking UI]({MLFLOW_UI_URL})")
 
 # --- Main Interface ---
 st.title("Railway Track Defect Detection System")
@@ -64,7 +75,7 @@ if uploaded_file is not None:
         
     # --- Prediction ---
     if st.button("Detect Defects", type="primary"):
-        if "🔴" in health_status:
+        if "🔴" in health_status and "Offline" in health_status:
             st.error("Cannot perform detection. FastAPI server is offline.")
         else:
             with st.spinner("Analyzing image..."):
@@ -121,7 +132,7 @@ if uploaded_file is not None:
                             st.success("No defects detected! The track appears clear.")
                         else:
                             for i, det in enumerate(detections):
-                                st.info(f"**{det['class_name'].capitalize()}** — Confidence: {det['confidence']*100:.0f}%")
+                                st.info(f"**{det['class_name'].capitalize()}** 🎯 Confidence: {det['confidence']*100:.0f}%")
                     else:
                         st.error(f"Error from API: {response.json().get('detail', 'Unknown error')}")
                         
