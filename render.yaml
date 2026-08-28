@@ -7,7 +7,7 @@ services:
     healthCheckPath: /health
     envVars:
       - key: MLFLOW_TRACKING_URI
-        value: sqlite:///mlflow.db
+        value: https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops.mlflow
 
   - type: web
     name: railguard-ui
