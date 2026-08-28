@@ -2,6 +2,7 @@ services:
   - type: web
     name: railguard-api
     env: docker
+    plan: free
     dockerfilePath: Dockerfile.api
     healthCheckPath: /health
     envVars:
@@ -11,6 +12,7 @@ services:
   - type: web
     name: railguard-ui
     env: docker
+    plan: free
     dockerfilePath: Dockerfile.ui
     envVars:
       - key: API_URL
