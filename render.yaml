@@ -8,6 +8,14 @@ services:
     envVars:
       - key: MLFLOW_TRACKING_URI
         value: https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops.mlflow
+      - key: MLFLOW_MODEL_NAME
+        value: RailGuard-Detector
+      - key: MLFLOW_MODEL_ALIAS
+        value: candidate
+      - key: MLFLOW_MODEL_VERSION
+        value: "1"
+      - key: MLFLOW_MODEL_RUN_ID
+        value: "80842181f7e345bb85b961dc2fdcfd3c"
 
   - type: web
     name: railguard-ui
