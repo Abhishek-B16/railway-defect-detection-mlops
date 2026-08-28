@@ -17,4 +17,4 @@ services:
         fromService:
           type: web
           name: railguard-api
-          property: url
+          envVarKey: RENDER_EXTERNAL_URL
