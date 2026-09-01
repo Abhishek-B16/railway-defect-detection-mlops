@@ -26,13 +26,20 @@ health_status = "🔴 API Offline"
 model_status = "🔴 Not Loaded"
 model_info = None
 
-try:
-    health_resp = requests.get(f"{API_URL}/health", timeout=2)
-    if health_resp.status_code == 200:
-        health_status = "🟢 API Online"
-        model_status = "🟢 Loaded"
-except requests.exceptions.RequestException:
-    pass
+import time
+for attempt in range(3):
+    try:
+        health_resp = requests.get(f"{API_URL}/health", timeout=15)
+        if health_resp.status_code == 200:
+            health_status = "🟢 API Online"
+            model_status = "🟢 Loaded"
+            break
+    except requests.exceptions.RequestException:
+        if attempt < 2:
+            time.sleep(2)
+        else:
+            health_status = "🔴 API Offline. Starting up, please try again in a few seconds."
+            model_status = "🔴 Not Loaded"
 
 st.sidebar.text(health_status)
 st.sidebar.text(f"Model: {model_status}")
@@ -40,7 +47,7 @@ st.sidebar.markdown("---")
 
 if "🟢 API Online" in health_status:
     try:
-        info_resp = requests.get(f"{API_URL}/model-info", timeout=2)
+        info_resp = requests.get(f"{API_URL}/model-info", timeout=15)
         if info_resp.status_code == 200:
             model_info = info_resp.json()
             st.sidebar.subheader("Model Information")
@@ -83,7 +90,7 @@ if uploaded_file is not None:
                     # Reset pointer
                     uploaded_file.seek(0)
                     files = {"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
-                    response = requests.post(f"{API_URL}/predict", files=files, timeout=30)
+                    response = requests.post(f"{API_URL}/predict", files=files, timeout=120)
                     
                     if response.status_code == 200:
                         data = response.json()
