@@ -1,0 +1,15 @@
+name: Keep API Alive
+
+on:
+  schedule:
+    # Runs every 14 minutes to prevent the 15-minute inactivity spin-down
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API Health Endpoint
+        run: |
+          curl -f https://railguard-api-tr8j.onrender.com/health || echo "Ping failed, but workflow continues."
