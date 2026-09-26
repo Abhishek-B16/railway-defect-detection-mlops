@@ -11,6 +11,9 @@ import cv2
 import numpy as np
 import torch
 
+# Optimize memory usage for Render Free Tier
+torch.set_num_threads(1)
+
 from api.schemas import HealthResponse, ModelInfoResponse, PredictionResponse, Detection, BBox
 from api.model_loader import RailGuardModelLoader
 
@@ -72,6 +75,9 @@ async def predict(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Empty file uploaded.")
             
         image = Image.open(io.BytesIO(contents)).convert("RGB")
+        
+        # Aggressively resize to prevent OOM crash on Render Free Tier
+        image.thumbnail((320, 320))
     except Exception as e:
         raise HTTPException(status_code=400, detail="Corrupted image file.")
 
