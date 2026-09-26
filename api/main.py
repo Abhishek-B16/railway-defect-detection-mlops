@@ -78,7 +78,12 @@ async def predict(file: UploadFile = File(...)):
 
     # 2. Inference (CPU fallback safety for cloud deployment)
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    results = model(image_np, conf=CONFIDENCE_THRESHOLD, device=device)
+    try:
+        results = model(image_np, conf=CONFIDENCE_THRESHOLD, device=device)
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"Inference error: {str(e)}")
     
     detections = []
     

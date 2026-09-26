@@ -90,10 +90,26 @@ if uploaded_file is not None:
                     # Reset pointer
                     uploaded_file.seek(0)
                     files = {"file": (uploaded_file.name, uploaded_file, uploaded_file.type)}
+                    
+                    # Diagnostics Log
+                    st.write(f"**Diagnostic Log:**")
+                    st.write(f"- API URL: {API_URL}/predict")
+                    st.write(f"- Filename: {uploaded_file.name}")
+                    st.write(f"- Content Type: {uploaded_file.type}")
+                    
                     response = requests.post(f"{API_URL}/predict", files=files, timeout=120)
                     
+                    st.write(f"- HTTP Status Code: {response.status_code}")
+                    st.write(f"- Response Content-Type: {response.headers.get('Content-Type')}")
+                    st.write(f"- Response Body Length: {len(response.text)}")
+                    st.write(f"- Response Body Preview: {response.text[:500]}")
+                    
                     if response.status_code == 200:
-                        data = response.json()
+                        try:
+                            data = response.json()
+                        except ValueError:
+                            st.error(f"Failed to parse success JSON. Raw response: {response.text[:500]}")
+                            data = {"detections": []}
                         detections = data.get("detections", [])
                         
                         with col2:
@@ -141,7 +157,12 @@ if uploaded_file is not None:
                             for i, det in enumerate(detections):
                                 st.info(f"**{det['class_name'].capitalize()}** 🎯 Confidence: {det['confidence']*100:.0f}%")
                     else:
-                        st.error(f"Error from API: {response.json().get('detail', 'Unknown error')}")
+                        try:
+                            data = response.json()
+                            err_msg = data.get('detail', 'Unknown error')
+                        except ValueError:
+                            err_msg = f"Status {response.status_code} - Text: {response.text[:500]}"
+                        st.error(f"Error from API: {err_msg}")
                         
                 except requests.exceptions.Timeout:
                     st.error("Request timed out. The server took too long to respond.")
