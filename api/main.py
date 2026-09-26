@@ -72,14 +72,13 @@ async def predict(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Empty file uploaded.")
             
         image = Image.open(io.BytesIO(contents)).convert("RGB")
-        image_np = np.array(image)
     except Exception as e:
         raise HTTPException(status_code=400, detail="Corrupted image file.")
 
     # 2. Inference (CPU fallback safety for cloud deployment)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     try:
-        results = model(image_np, conf=CONFIDENCE_THRESHOLD, device=device)
+        results = model(image, conf=CONFIDENCE_THRESHOLD, device=device)
     except Exception as e:
         import traceback
         traceback.print_exc()
