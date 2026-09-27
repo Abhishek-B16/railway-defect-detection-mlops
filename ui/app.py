@@ -26,38 +26,49 @@ health_status = "🔴 API Offline"
 model_status = "🔴 Not Loaded"
 model_info = None
 
-import time
-for attempt in range(3):
+@st.cache_data(ttl=30, show_spinner=False)
+def check_api_health():
     try:
-        health_resp = requests.get(f"{API_URL}/health", timeout=15)
+        # A short timeout ensures the UI loads fast even if the API is asleep.
+        # Render free tier APIs can take 60s+ to wake up, so 3s will timeout if cold.
+        health_resp = requests.get(f"{API_URL}/health", timeout=3)
         if health_resp.status_code == 200:
-            health_status = "🟢 API Online"
-            model_status = "🟢 Loaded"
-            break
+            try:
+                info_resp = requests.get(f"{API_URL}/model-info", timeout=3)
+                if info_resp.status_code == 200:
+                    return "online", info_resp.json()
+            except:
+                pass
+            return "online", None
+        return "error", None
+    except requests.exceptions.Timeout:
+        return "cold", None
     except requests.exceptions.RequestException:
-        if attempt < 2:
-            time.sleep(2)
-        else:
-            health_status = "🔴 API Offline. Starting up, please try again in a few seconds."
-            model_status = "🔴 Not Loaded"
+        return "offline", None
+
+api_state, model_info = check_api_health()
+
+if api_state == "online":
+    health_status = "🟢 API Online"
+    model_status = "🟢 Loaded"
+elif api_state == "cold":
+    health_status = "🟡 API Waking Up (Cold Start)..."
+    model_status = "🟡 Loading..."
+else:
+    health_status = "🔴 API Offline"
+    model_status = "🔴 Not Loaded"
 
 st.sidebar.text(health_status)
 st.sidebar.text(f"Model: {model_status}")
 st.sidebar.markdown("---")
 
-if "🟢 API Online" in health_status:
-    try:
-        info_resp = requests.get(f"{API_URL}/model-info", timeout=15)
-        if info_resp.status_code == 200:
-            model_info = info_resp.json()
-            st.sidebar.subheader("Model Information")
-            st.sidebar.text(f"Model: {model_info.get('model_name')}")
-            st.sidebar.text(f"Version: {model_info.get('version')}")
-            st.sidebar.text(f"Alias: {model_info.get('alias')}")
-            st.sidebar.text(f"Task: {model_info.get('task')}")
-            st.sidebar.markdown("---")
-    except requests.exceptions.RequestException:
-        st.sidebar.error("Could not fetch model info.")
+if model_info:
+    st.sidebar.subheader("Model Information")
+    st.sidebar.text(f"Model: {model_info.get('model_name')}")
+    st.sidebar.text(f"Version: {model_info.get('version')}")
+    st.sidebar.text(f"Alias: {model_info.get('alias')}")
+    st.sidebar.text(f"Task: {model_info.get('task')}")
+    st.sidebar.markdown("---")
 
 # --- MLOps Navigation Showcase ---
 st.sidebar.subheader("MLOps Navigation")

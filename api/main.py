@@ -44,6 +44,16 @@ def startup_event():
     global model
     model = loader.load_model()
     os.makedirs(OUTPUT_DIR, exist_ok=True)
+    
+    # Warm-up inference to pre-allocate PyTorch memory and avoid OOM spike on first request
+    try:
+        print("Warming up model to pre-allocate memory...")
+        dummy_img = Image.new("RGB", (320, 320), color="black")
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        model(dummy_img, conf=CONFIDENCE_THRESHOLD, device=device, imgsz=320)
+        print("Model warm-up complete.")
+    except Exception as e:
+        print(f"Model warm-up failed: {e}")
 
 @app.get("/health", response_model=HealthResponse)
 def health_check():
@@ -84,7 +94,8 @@ def predict(file: UploadFile = File(...)):
     # 2. Inference (CPU fallback safety for cloud deployment)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     try:
-        results = model(image, conf=CONFIDENCE_THRESHOLD, device=device)
+        # Pass imgsz=320 explicitly. YOLOv8 defaults to 640 and will upscale otherwise, causing OOM!
+        results = model(image, conf=CONFIDENCE_THRESHOLD, device=device, imgsz=320)
     except Exception as e:
         import traceback
         traceback.print_exc()
