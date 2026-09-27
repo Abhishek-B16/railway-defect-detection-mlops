@@ -61,7 +61,7 @@ def model_info():
     return ModelInfoResponse(**info)
 
 @app.post("/predict", response_model=PredictionResponse)
-async def predict(file: UploadFile = File(...)):
+def predict(file: UploadFile = File(...)):
     start_time = time.time()
 
     # 1. Image Validation
@@ -70,7 +70,7 @@ async def predict(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="File provided is not an image.")
 
     try:
-        contents = await file.read()
+        contents = file.file.read()
         if len(contents) == 0:
             raise HTTPException(status_code=400, detail="Empty file uploaded.")
             
