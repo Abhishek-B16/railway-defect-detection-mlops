@@ -1,0 +1,36 @@
+{
+  "title": "RailGuard — Railway Defect Detection Monitoring",
+  "panels": [
+    {
+      "title": "API Health",
+      "type": "stat",
+      "targets": [{"expr": "railguard_api_health"}],
+      "gridPos": {"h": 4, "w": 4, "x": 0, "y": 0}
+    },
+    {
+      "title": "Prediction Requests Rate",
+      "type": "timeseries",
+      "targets": [{"expr": "rate(railguard_prediction_requests_total[5m])"}],
+      "gridPos": {"h": 8, "w": 10, "x": 4, "y": 0}
+    },
+    {
+      "title": "Average Inference Latency",
+      "type": "timeseries",
+      "targets": [{"expr": "rate(railguard_inference_latency_seconds_sum[5m]) / rate(railguard_inference_latency_seconds_count[5m])"}],
+      "gridPos": {"h": 8, "w": 10, "x": 14, "y": 0}
+    },
+    {
+      "title": "Detections by Class",
+      "type": "barchart",
+      "targets": [{"expr": "sum by (class_name) (increase(railguard_detections_total[1h]))"}],
+      "gridPos": {"h": 8, "w": 24, "x": 0, "y": 8}
+    },
+    {
+      "title": "Loaded Model Information",
+      "type": "stat",
+      "targets": [{"expr": "railguard_model_info"}],
+      "gridPos": {"h": 4, "w": 24, "x": 0, "y": 16}
+    }
+  ],
+  "schemaVersion": 38
+}

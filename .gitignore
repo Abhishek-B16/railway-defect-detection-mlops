@@ -48,3 +48,5 @@ api_outputs/
 invalid_lines.txt
 dataset_inspection_results.json
 segmentation_inspection_results.json
+
+dataset_clean_backup_v1/

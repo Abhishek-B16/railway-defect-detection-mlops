@@ -9,6 +9,7 @@ API_URL = os.getenv("API_URL", "http://127.0.0.1:8000")
 DAGSHUB_URL = os.getenv("DAGSHUB_URL", "https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops")
 MLFLOW_UI_URL = os.getenv("MLFLOW_UI_URL", os.getenv("MLFLOW_URL", "http://127.0.0.1:5000"))
 API_DOCS_URL = os.getenv("API_DOCS_URL", f"{API_URL.rstrip('/')}/docs")
+GRAFANA_URL = os.getenv("GRAFANA_URL", "http://127.0.0.1:3000")
 
 st.set_page_config(
     page_title="RailGuard",
@@ -75,6 +76,7 @@ st.sidebar.subheader("MLOps Navigation")
 st.sidebar.markdown(f"[📖 API Interactive Docs]({API_DOCS_URL})")
 st.sidebar.markdown(f"[📦 DagsHub Dataset & Remote]({DAGSHUB_URL})")
 st.sidebar.markdown(f"[📊 MLflow Tracking UI]({MLFLOW_UI_URL})")
+st.sidebar.markdown(f"[📈 Grafana Monitoring Dashboard]({GRAFANA_URL})")
 
 # --- Main Interface ---
 st.title("Railway Track Defect Detection System")
