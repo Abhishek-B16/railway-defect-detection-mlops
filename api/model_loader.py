@@ -42,7 +42,8 @@ class RailGuardModelLoader:
                 local_path = self._resolve_local_sqlite_path(source)
                 
             if not local_path or not os.path.exists(local_path):
-                local_path = download_artifacts(artifact_uri=f"models:/{self.model_name}@{self.alias}")
+                print(f"Downloading from source: {source}")
+                local_path = download_artifacts(artifact_uri=source)
                 
         except Exception as e:
             print(f"Alias lookup failed ({e}). Trying model version...")
@@ -60,7 +61,8 @@ class RailGuardModelLoader:
                     local_path = self._resolve_local_sqlite_path(source)
                     
                 if not local_path or not os.path.exists(local_path):
-                    local_path = download_artifacts(artifact_uri=f"models:/{self.model_name}/{target_version}")
+                    print(f"Downloading from source: {source}")
+                    local_path = download_artifacts(artifact_uri=source)
             except Exception as e:
                 print(f"Model version lookup failed ({e}). Trying run artifact fallback...")
 
