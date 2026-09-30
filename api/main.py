@@ -102,7 +102,7 @@ def predict(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Empty file uploaded.")
             
         image = Image.open(io.BytesIO(contents)).convert("RGB")
-        image.thumbnail((320, 320))
+        image.thumbnail((640, 640))
     except Exception as e:
         PREDICTION_REQUESTS_TOTAL.labels(status="failed").inc()
         HTTP_REQUESTS_TOTAL.labels(endpoint="/predict", method="POST", status_code="400").inc()
@@ -112,7 +112,7 @@ def predict(file: UploadFile = File(...)):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     inference_start = time.time()
     try:
-        results = model(image, conf=CONFIDENCE_THRESHOLD, device=device, imgsz=320)
+        results = model(image, conf=CONFIDENCE_THRESHOLD, device=device, imgsz=640)
     except Exception as e:
         import traceback
         traceback.print_exc()
