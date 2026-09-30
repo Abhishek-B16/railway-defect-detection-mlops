@@ -50,3 +50,5 @@ dataset_inspection_results.json
 segmentation_inspection_results.json
 
 dataset_clean_backup_v1/
+
+raw_v2_dataset/
