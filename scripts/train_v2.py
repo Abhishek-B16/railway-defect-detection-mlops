@@ -3,6 +3,11 @@ import os
 
 def train_v2():
     print("=== Phase 4: Training Improved Model (V2) ===")
+    
+    # Force MLflow to log to DagsHub
+    import mlflow
+    mlflow.set_tracking_uri("https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops.mlflow")
+    
     model = YOLO('yolov8n.pt') 
     
     # Train
