@@ -3,5 +3,5 @@ model_registry:
   name: "RailGuard-Detector"
   alias: "candidate"
 inference:
-  confidence_threshold: 0.25
+  confidence_threshold: 0.10
   output_dir: "api_outputs"
