@@ -84,6 +84,6 @@ def merge_datasets(source_dir, target_dir):
     print(f"Successfully migrated {total_images_copied} images and {total_labels_copied} labels into dataset_clean.")
 
 if __name__ == "__main__":
-    SOURCE = r"C:\Users\ABHISHEK\ML project\railway-defect-mlops\raw_v2_dataset"
+    SOURCE = r"C:\Users\ABHISHEK\ML project\railway-defect-mlops\new_cracks_dataset"
     TARGET = r"C:\Users\ABHISHEK\ML project\railway-defect-mlops\dataset_clean"
     merge_datasets(SOURCE, TARGET)

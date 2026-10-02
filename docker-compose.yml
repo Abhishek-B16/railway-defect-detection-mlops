@@ -7,7 +7,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      - MLFLOW_TRACKING_URI=sqlite:///mlflow.db
+      - MLFLOW_TRACKING_URI=https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops.mlflow
     restart: unless-stopped
 
   ui:
