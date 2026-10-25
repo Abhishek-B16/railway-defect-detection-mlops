@@ -16,9 +16,9 @@ services:
       dockerfile: Dockerfile.ui
     container_name: railguard-ui
     ports:
-      - "8501:8501"
+      - "80:80"
     environment:
-      - API_URL=http://api:8000
+      - API_URL=http://localhost:8000
     depends_on:
       - api
     restart: unless-stopped
