@@ -112,7 +112,7 @@ def predict(file: UploadFile = File(...)):
     device = "cuda" if torch.cuda.is_available() else "cpu"
     inference_start = time.time()
     try:
-        results = model(image, conf=CONFIDENCE_THRESHOLD, device=device, imgsz=640)
+        results = model(image, conf=CONFIDENCE_THRESHOLD, device=device, imgsz=640, iou=0.3)
     except Exception as e:
         import traceback
         traceback.print_exc()

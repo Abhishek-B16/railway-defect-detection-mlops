@@ -2,10 +2,10 @@ import { useState, useRef, useEffect } from 'react'
 import { Upload, Activity, ShieldCheck, Database, BarChart3, AlertCircle, RefreshCw, Train, ExternalLink, Settings, Terminal } from 'lucide-react'
 
 // Configuration
-const API_URL = "http://localhost:8000"; 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"; 
 const DAGSHUB_URL = "https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops";
 const MLFLOW_UI_URL = "https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops.mlflow";
-const GRAFANA_URL = "http://localhost:3000";
+const GRAFANA_URL = "http://localhost:3001";
 
 const COLORS = {
   crack: "#ef4444", spalling: "#f97316", flaking: "#eab308",
@@ -21,6 +21,7 @@ function App() {
   const [error, setError] = useState(null);
   const [apiStatus, setApiStatus] = useState("checking");
   const [modelInfo, setModelInfo] = useState(null);
+  const [hasRun, setHasRun] = useState(false);
   
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
@@ -57,6 +58,7 @@ function App() {
       setImagePreview(URL.createObjectURL(selected));
       setDetections([]);
       setError(null);
+      setHasRun(false);
       if (canvasRef.current) {
         const ctx = canvasRef.current.getContext('2d');
         ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
@@ -76,7 +78,7 @@ function App() {
       setDetections(data.detections || []);
       drawDetections(data.detections || []);
     } catch (err) { setError(err.message); } 
-    finally { setLoading(false); }
+    finally { setLoading(false); setHasRun(true); }
   };
 
   const drawDetections = (dets) => {
@@ -94,12 +96,21 @@ function App() {
       const { x1, y1, x2, y2 } = det.bbox;
       const color = COLORS[det.class_name] || "#ef4444";
       const sx1 = x1 * scaleX, sy1 = y1 * scaleY, sw = (x2 - x1) * scaleX, sh = (y2 - y1) * scaleY;
+      
+      // Capitalize the first letter (e.g., "crack" -> "Crack")
+      const formatName = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+      const cleanName = formatName(det.class_name);
+      
       ctx.strokeStyle = color; ctx.lineWidth = 3; ctx.strokeRect(sx1, sy1, sw, sh);
-      const text = `${det.class_name} ${(det.confidence * 100).toFixed(1)}%`;
+      
+      const text = `${cleanName}: ${(det.confidence * 100).toFixed(1)}% Confidence`;
       ctx.font = "bold 13px Inter";
       const tw = ctx.measureText(text).width;
-      ctx.fillStyle = color; ctx.fillRect(sx1, sy1 - 22, tw + 10, 22);
-      ctx.fillStyle = "#000"; ctx.fillText(text, sx1 + 5, sy1 - 6);
+      
+      // Draw background for text
+      ctx.fillStyle = color; ctx.fillRect(sx1, sy1 - 24, tw + 14, 24);
+      // Draw text
+      ctx.fillStyle = "#ffffff"; ctx.fillText(text, sx1 + 7, sy1 - 7);
     });
   };
 
@@ -218,10 +229,10 @@ function App() {
                           <div className="detection-item" key={i} style={{ borderLeftColor: COLORS[det.class_name] || 'red', background: 'var(--bg-tertiary)', padding: '16px', borderRadius: '12px' }}>
                             <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
                               <div style={{width: '12px', height: '12px', borderRadius: '50%', background: COLORS[det.class_name] || 'red'}}></div>
-                              <span className="det-label" style={{fontSize: '1.1rem'}}>{det.class_name}</span>
+                              <span className="det-label" style={{fontSize: '1.1rem'}}>{det.class_name.charAt(0).toUpperCase() + det.class_name.slice(1)} Defect</span>
                             </div>
                             <span className="det-conf" style={{background: 'var(--bg-secondary)', padding: '6px 12px', borderRadius: '6px', color: 'var(--text-secondary)'}}>
-                              {(det.confidence * 100).toFixed(1)}% Match
+                              {(det.confidence * 100).toFixed(1)}% AI Confidence
                             </span>
                           </div>
                         ))}
@@ -231,9 +242,19 @@ function App() {
 
                   {!loading && detections.length === 0 && !error && file && apiStatus === 'online' && (
                     <div className="empty-state" style={{marginTop: '40px'}}>
-                      <Activity size={48} style={{opacity: 0.2, marginBottom: '20px'}} />
-                      <h4 style={{fontSize: '1.2rem', marginBottom: '8px', color: 'var(--text-primary)'}}>System Standby</h4>
-                      <p style={{fontSize: '0.95rem'}}>Neural network is loaded and ready for inference.</p>
+                      {hasRun ? (
+                        <>
+                          <ShieldCheck size={48} style={{color: 'var(--success)', marginBottom: '20px'}} />
+                          <h4 style={{fontSize: '1.2rem', marginBottom: '8px', color: 'var(--success)'}}>No Defects Found!</h4>
+                          <p style={{fontSize: '0.95rem'}}>The AI analyzed this image and verified it is completely safe.</p>
+                        </>
+                      ) : (
+                        <>
+                          <Activity size={48} style={{opacity: 0.2, marginBottom: '20px'}} />
+                          <h4 style={{fontSize: '1.2rem', marginBottom: '8px', color: 'var(--text-primary)'}}>System Standby</h4>
+                          <p style={{fontSize: '0.95rem'}}>Neural network is loaded and ready for inference.</p>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>
