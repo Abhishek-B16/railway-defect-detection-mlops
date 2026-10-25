@@ -1,8 +1,12 @@
 import { useState, useRef, useEffect } from 'react'
 import { Upload, Activity, ShieldCheck, Database, BarChart3, AlertCircle, RefreshCw, Train, ExternalLink, Settings, Terminal } from 'lucide-react'
 
-// Configuration
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000"; 
+// Default configuration
+const DEFAULT_API_URL = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && window.location.hostname.includes('onrender.com') 
+    ? 'https://railguard-api.onrender.com' 
+    : 'http://localhost:8000');
+
 const DAGSHUB_URL = "https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops";
 const MLFLOW_UI_URL = "https://dagshub.com/Abhishek-B16/railway-defect-detection-mlops.mlflow";
 const GRAFANA_URL = "http://localhost:3001";
@@ -14,6 +18,10 @@ const COLORS = {
 
 function App() {
   const [activeTab, setActiveTab] = useState("diagnostics");
+  const [apiUrl, setApiUrl] = useState(() => localStorage.getItem('railguard_api_url') || DEFAULT_API_URL);
+  const [showConfig, setShowConfig] = useState(false);
+  const [inputUrl, setInputUrl] = useState(apiUrl);
+  
   const [file, setFile] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -26,24 +34,29 @@ function App() {
   const canvasRef = useRef(null);
   const imgRef = useRef(null);
 
-  useEffect(() => { checkHealth(); }, []);
+  useEffect(() => { 
+    checkHealth(apiUrl); 
+  }, [apiUrl]);
 
-  const checkHealth = async () => {
+  const checkHealth = async (targetUrl = apiUrl) => {
     setApiStatus("checking");
     try {
-      const res = await fetch(`${API_URL}/health`);
+      const cleanUrl = targetUrl.replace(/\/+$/, '');
+      const res = await fetch(`${cleanUrl}/health`);
       if (res.ok) {
         setApiStatus("online");
-        fetchModelInfo();
+        fetchModelInfo(cleanUrl);
       } else {
         setApiStatus("offline");
       }
-    } catch (e) { setApiStatus("offline"); }
+    } catch (e) { 
+      setApiStatus("offline"); 
+    }
   };
 
-  const fetchModelInfo = async () => {
+  const fetchModelInfo = async (cleanUrl) => {
     try {
-      const res = await fetch(`${API_URL}/model-info`);
+      const res = await fetch(`${cleanUrl}/model-info`);
       if (res.ok) {
         const data = await res.json();
         setModelInfo(data);
@@ -72,7 +85,8 @@ function App() {
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const res = await fetch(`${API_URL}/predict`, { method: 'POST', body: formData });
+      const cleanUrl = apiUrl.replace(/\/+$/, '');
+      const res = await fetch(`${cleanUrl}/predict`, { method: 'POST', body: formData });
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
       const data = await res.json();
       setDetections(data.detections || []);
@@ -147,10 +161,51 @@ function App() {
         </div>
 
         <div className="sidebar-status">
-          <div className="status-badge" style={{ marginBottom: '16px' }}>
-            <div className={`status-dot ${apiStatus === 'online' ? 'online' : ''}`} style={{boxShadow: `0 0 12px ${apiStatus === 'online' ? 'var(--success)' : 'var(--error)'}`}}></div>
-            <span style={{fontWeight: 500, letterSpacing: '0.5px'}}>{apiStatus === 'online' ? 'FastAPI Connected' : 'API Disconnected'}</span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+            <div className="status-badge" style={{ margin: 0 }}>
+              <div className={`status-dot ${apiStatus === 'online' ? 'online' : ''}`} style={{boxShadow: `0 0 12px ${apiStatus === 'online' ? 'var(--success)' : 'var(--error)'}`}}></div>
+              <span style={{fontWeight: 500, letterSpacing: '0.5px', fontSize: '0.85rem'}}>{apiStatus === 'online' ? 'FastAPI Connected' : 'API Disconnected'}</span>
+            </div>
+            <button 
+              onClick={() => { setShowConfig(!showConfig); setInputUrl(apiUrl); }} 
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}
+              title="Configure API Endpoint"
+            >
+              <Settings size={15} />
+            </button>
           </div>
+
+          {showConfig && (
+            <div style={{ background: 'var(--bg-tertiary)', border: '1px solid var(--border)', borderRadius: '8px', padding: '10px', marginBottom: '12px' }}>
+              <div style={{ fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-primary)', marginBottom: '6px' }}>FastAPI Endpoint URL:</div>
+              <input 
+                type="text" 
+                value={inputUrl} 
+                onChange={(e) => setInputUrl(e.target.value)} 
+                placeholder="https://your-api.onrender.com"
+                style={{ width: '100%', boxSizing: 'border-box', background: 'var(--bg-secondary)', border: '1px solid var(--border)', color: '#fff', borderRadius: '4px', padding: '6px 8px', fontSize: '0.75rem', marginBottom: '8px' }}
+              />
+              <div style={{ display: 'flex', gap: '6px' }}>
+                <button 
+                  onClick={() => {
+                    const finalUrl = inputUrl.trim();
+                    setApiUrl(finalUrl);
+                    localStorage.setItem('railguard_api_url', finalUrl);
+                    setShowConfig(false);
+                  }}
+                  style={{ flex: 1, background: 'var(--accent)', color: '#fff', border: 'none', borderRadius: '4px', padding: '6px', fontSize: '0.75rem', cursor: 'pointer', fontWeight: 600 }}
+                >
+                  Save & Connect
+                </button>
+                <button 
+                  onClick={() => setShowConfig(false)}
+                  style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', borderRadius: '4px', padding: '6px 8px', fontSize: '0.75rem', cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
           
           {modelInfo && (
             <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'var(--bg-tertiary)', padding: '12px', borderRadius: '8px', border: '1px solid var(--border)' }}>
