@@ -143,7 +143,7 @@ function App() {
             <Activity size={18} /> Vision Diagnostics
           </button>
           
-          <a href={`${API_URL}/docs`} target="_blank" rel="noreferrer" className="menu-item">
+          <a href={`${apiUrl}/docs`} target="_blank" rel="noreferrer" className="menu-item">
             <Terminal size={18} /> API Console <ExternalLink size={14} style={{marginLeft: 'auto', opacity: 0.5}}/>
           </a>
           
